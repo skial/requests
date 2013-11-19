@@ -1,0 +1,14 @@
+{
+  "name": "requests",
+  "license": "MIT",
+  "classPath": "src",
+  "tags": ["uhu", "request", "http", "get", "post", "put", "delete"],
+  "description": "HTTP Library, inspired by Python Requests",
+  "contributors": ["skial"],
+  "releasenote": "Initial Release",
+  "version": "0.0.1-alpha",
+  "url": "https://github.com/skial/requests",
+  "dependencies": {
+    "uhu": ""
+  }
+}

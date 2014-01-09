@@ -36,6 +36,13 @@ class Requests {
 		
 		for (r in rest) switch (r) {
 			case macro headers = $expr:
+				switch (expr.expr) {
+					case EObjectDecl( fields ):
+						for (field in fields) es.push( macro $i { id } .headers.set( $v { field.field }, '' + $e { field.expr } ) );
+						
+					case _:
+						
+				}
 				
 			case macro data = $expr if (method == macro POST):
 				

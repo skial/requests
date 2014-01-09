@@ -10,6 +10,7 @@ import haxe.macro.Expr;
 
 using haxe.macro.ExprTools;
 #end
+using StringTools;
 
 /**
  * ...
@@ -38,7 +39,10 @@ class Requests {
 			case macro headers = $expr:
 				switch (expr.expr) {
 					case EObjectDecl( fields ):
-						for (field in fields) es.push( macro $i { id } .headers.set( $v { field.field }, '' + $e { field.expr } ) );
+						for (field in fields) {
+							// We need to replace identifier's prefixed by the compiler. eg `@$__hx__`
+							es.push( macro $i { id } .headers.set( $v { field.field.replace( "@$__hx__", '' ) }, '' + $e { field.expr } ) );
+						}
 						
 					case _:
 						

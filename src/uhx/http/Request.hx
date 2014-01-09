@@ -65,7 +65,7 @@ class Request implements Klas {
 		http = new Http( url.toString() );
 		http.onData = onLoad;
 		http.onStatus = onStatus;
-		headers = http;
+		headers = new Headers( http );
 		#end
 	}
 	

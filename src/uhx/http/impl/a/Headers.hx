@@ -56,7 +56,14 @@ class Headers {
 		#if js
 		return this.http.getResponseHeader( key );
 		#else
-		return this.http.headers.get( key );
+		var result = '';
+		
+		for (header in this.http.headers) if (header.header == key) {
+			result = header.value;
+			break;
+		}
+		
+		return result;
 		#end
 	}
 	
@@ -64,7 +71,14 @@ class Headers {
 		#if js
 		return this.http.getResponseHeader( key ) != null;
 		#else
-		return this.http.headers.exists( key );
+		var result = false;
+		
+		for (header in this.http.headers) if (header.header == key) {
+			result = true;
+			break;
+		}
+		
+		return result;
 		#end
 	}
 	
@@ -72,7 +86,8 @@ class Headers {
 		#if js
 		this.http.setRequestHeader( key, value );
 		#else
-		this.http.headers.set( key, value );
+		this.http.headers.remove( { header:key, value:value } );
+		this.http.headers.add( { header:key, value:value } );
 		#end
 	}
 	

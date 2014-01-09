@@ -41,7 +41,7 @@ class Request implements Klas {
 	public var url(default, null):Uri;
 	public var method(default, null):EMethod;
 	
-	private var callback:Void->Void;
+	private var callback:Response->Void;
 
 	public function new(url:Uri, method:EMethod) {
 		this.url = url;
@@ -49,18 +49,18 @@ class Request implements Klas {
 		
 		#if js
 		xhr = new XMLHttpRequest();
-		headers = xhr;
+		headers = new Headers( xhr );
 		#end
 		
 		init();
 	}
 	
 	private function init() {
-		callback = function() { };
+		//callback == null ? function() { } : callback;
 		cookies = new Array<Cookie>();
 		#if js
 		xhr.open( method.getName(), url.toString(), true );
-		xhr.onload = onLoad;
+		xhr.onloadend = onLoad;
 		#else
 		http = new Http( url.toString() );
 		http.onData = onLoad;
@@ -70,8 +70,11 @@ class Request implements Klas {
 	}
 	
 	private function onLoad(e) {
+		untyped console.log( 'onloadend' );
+		untyped console.log( this.xhr );
+		untyped console.log( this.xhr.status );
 		response = new Response( this );
-		callback();
+		callback( response );
 	}
 	
 	#if !js
@@ -98,7 +101,7 @@ class Request implements Klas {
 		#end
 	}
 	
-	public function send(cb:Void->Void, ?params:StringMap<String>, ?data:String = ''):Void {
+	public function send(cb:Response->Void, ?params:StringMap<String>, ?data:String = ''):Void {
 		prepare();
 		
 		callback = cb;

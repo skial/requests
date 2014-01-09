@@ -12,13 +12,13 @@ haxe.Http;
  * @author Skial Bainn
  * http://stackoverflow.com/questions/7462968/restrictions-of-xmlhttprequests-getresponseheader
  */
-abstract Headers(PlatformHeaders) from PlatformHeaders to PlatformHeaders {
+/*abstract Headers(PlatformHeaders) from PlatformHeaders to PlatformHeaders {
 
-	public inline function new(v:PlatformHeaders) {
+	public function new(v:PlatformHeaders) {
 		this = v;
 	}
 	
-	@:access(haxe.Http) public inline function get(key:String):String {
+	@:access(haxe.Http) public function get(key:String):String {
 		#if js
 		return this.getResponseHeader( key );
 		#else
@@ -26,7 +26,7 @@ abstract Headers(PlatformHeaders) from PlatformHeaders to PlatformHeaders {
 		#end
 	}
 	
-	@:access(haxe.Http) public inline function exists(key:String):Bool {
+	@:access(haxe.Http) public function exists(key:String):Bool {
 		#if js
 		return this.getResponseHeader( key ) != null;
 		#else
@@ -34,11 +34,45 @@ abstract Headers(PlatformHeaders) from PlatformHeaders to PlatformHeaders {
 		#end
 	}
 	
-	@:access(haxe.Http) public inline function set(key:String, value:String):Void {
+	@:access(haxe.Http) public function set(key:String, value:String):Void {
 		#if js
 		this.setRequestHeader( key, value );
 		#else
 		this.headers.set( key, value );
+		#end
+	}
+	
+}*/
+
+class Headers {
+	
+	private var http:PlatformHeaders;
+	
+	public function new(v:PlatformHeaders) {
+		this.http = v;
+	}
+	
+	@:access(haxe.Http) public function get(key:String):String {
+		#if js
+		return this.http.getResponseHeader( key );
+		#else
+		return this.http.headers.get( key );
+		#end
+	}
+	
+	@:access(haxe.Http) public function exists(key:String):Bool {
+		#if js
+		return this.http.getResponseHeader( key ) != null;
+		#else
+		return this.http.headers.exists( key );
+		#end
+	}
+	
+	@:access(haxe.Http) public function set(key:String, value:String):Void {
+		#if js
+		this.http.setRequestHeader( key, value );
+		#else
+		this.http.headers.set( key, value );
 		#end
 	}
 	

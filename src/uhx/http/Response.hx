@@ -47,18 +47,21 @@ class Response implements Klas {
 		
 		#if js
 		xhr = request.xhr;
-		headers = xhr;
+		headers = request.headers;
 		#else
 		http = request.http;
-		headers = http;
+		headers = request.headers;
 		#end
+		
+		untyped console.log( 'new  response' );
+		untyped console.log( xhr );
 	}
 	
-	private inline function get_url():Uri {
+	private function get_url():Uri {
 		return request.url;
 	}
 	
-	private inline function get_text():String {
+	private function get_text():String {
 		#if js
 		return xhr.responseText;
 		#else
@@ -82,7 +85,7 @@ class Response implements Klas {
 		return '';
 	}*/
 	
-	private inline function get_status_code():Int {
+	private function get_status_code():Int {
 		#if js
 		return xhr.status;
 		#else

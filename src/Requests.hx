@@ -1,5 +1,6 @@
 package ;
 
+import haxe.macro.Context;
 import taurine.io.Uri;
 import uhx.http.Request;
 import uhx.http.Response;
@@ -32,6 +33,7 @@ class Requests {
 	private static function transformRequest(url:Expr, cb:Expr, method:ExprOf<EMethod>, rest:Array<Expr>) {
 		var id = 'rq' + counter++;
 		var es = [];
+		var data = null;
 		
 		es.push( macro var $id = new Request( new Uri( $url ), $method ) );
 		
@@ -40,7 +42,8 @@ class Requests {
 				switch (expr.expr) {
 					case EObjectDecl( fields ):
 						for (field in fields) {
-							// We need to replace identifier's prefixed by the compiler. eg `@$__hx__`
+							// We need to replace identifier's prefixed by the compiler. eg `@$__hx__`.
+							// See http://haxe.org/manual/struct#json-notation
 							es.push( macro $i { id } .headers.set( $v { field.field.replace( "@$__hx__", '' ) }, '' + $e { field.expr } ) );
 						}
 						
@@ -48,13 +51,26 @@ class Requests {
 						
 				}
 				
-			case macro data = $expr if (method == macro POST):
+			case macro data = $expr if (method.toString() == 'POST'):
+				switch (expr.expr) {
+					case EObjectDecl( fields ) if (fields.length > 0):
+						data = '${id}PostData';
+						es.push( macro var $data = new haxe.ds.StringMap<String>() );
+						for (field in fields) es.push( macro $i { data } .set( $v { field.field }, $v { field.expr.toString() } ) );
+						
+					case _:
+						
+				}
 				
 			case _:
 				
 		}
 		
-		es.push( macro $i{ id }.send( $cb ) );
+		if (data == null) {
+			es.push( macro $i{ id }.send( $cb ) );
+		} else {
+			es.push( macro $i { id } .send( $cb, $i{ data } ) );
+		}
 		
 		var block = { expr: EBlock( es ), pos: url.pos };
 		return macro @:mergeBlock $block;

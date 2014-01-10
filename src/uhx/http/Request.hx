@@ -120,7 +120,7 @@ class Request implements Klas {
 					
 				case POST:
 					for (key in params.keys()) {
-						data += key.urlEncode() + '=' + params.get( key ).urlEncode();
+						data += (data != '' ? '&' : '') + key.urlEncode() + '=' + params.get( key ).urlEncode();
 					}
 					
 					headers.set('content-type', 'application/x-www-form-urlencoded');

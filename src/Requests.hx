@@ -1,5 +1,6 @@
 package ;
 
+import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import taurine.io.Uri;
 import uhx.http.Request;
@@ -34,6 +35,7 @@ class Requests {
 		var id = 'rq' + counter++;
 		var es = [];
 		var data = null;
+		var args = [cb];
 		
 		es.push( macro var $id = new Request( new Uri( $url ), $method ) );
 		
@@ -52,25 +54,51 @@ class Requests {
 				}
 				
 			case macro data = $expr if (method.toString() == 'POST'):
-				switch (expr.expr) {
-					case EObjectDecl( fields ) if (fields.length > 0):
+				
+				switch (expr) {
+					case { expr:EObjectDecl( fields ), pos:pos } if (fields.length > 0):
 						data = '${id}PostData';
+						
 						es.push( macro var $data = new haxe.ds.StringMap<String>() );
-						for (field in fields) es.push( macro $i { data } .set( $v { field.field }, $v { field.expr.toString() } ) );
+						for (field in fields) {
+							es.push( macro $i { data } .set( $v { field.field }, $v { field.expr.toString() } ) );
+						}
+						
+						args[1] = macro $i{ data };
+						
+					case { expr:EConst(CString(v)), pos:pos } if (v != ''):
+						if (args.length < 2) args[1] = macro null;
+						args[2] = macro $v { v };
 						
 					case _:
-						
+						try {
+							var type = Context.typeof( expr );
+							switch (type) {
+								case TAnonymous( _ ):
+									data = '${id}PostData';
+									
+									es.push( macro var $data = new haxe.ds.StringMap<String>() );
+									es.push( macro for (field in Reflect.fields( $expr )) {
+										$i { data } .set(field, Reflect.field( $expr, field ));
+									} );
+									
+									args[1] = macro $i{ data };
+									
+								case _:
+									if (args.length < 2) args[1] = macro null;
+									args[2] = expr;
+							}
+							
+						} catch (e:Dynamic) {
+							
+						}
 				}
 				
 			case _:
 				
 		}
 		
-		if (data == null) {
-			es.push( macro $i{ id }.send( $cb ) );
-		} else {
-			es.push( macro $i { id } .send( $cb, $i{ data } ) );
-		}
+		es.push( macro $i{ id }.send( $a{ args } ) );
 		
 		var block = { expr: EBlock( es ), pos: url.pos };
 		return macro @:mergeBlock $block;

@@ -70,9 +70,6 @@ class Request implements Klas {
 	}
 	
 	private function onLoad(e) {
-		untyped console.log( 'onloadend' );
-		untyped console.log( this.xhr );
-		untyped console.log( this.xhr.status );
 		response = new Response( this );
 		callback( response );
 	}
@@ -105,33 +102,29 @@ class Request implements Klas {
 		prepare();
 		
 		callback = cb;
-		
-		if (params != null) {
 			
-			switch (method) {
-				case GET:
-					for (key in params.keys()) {
-						url.query.set( key, [ params.get( key ) ] );
-					}
-					
-					destroy();
-					init();
-					prepare();
-					
-				case POST:
-					for (key in params.keys()) {
-						data += (data != '' ? '&' : '') + key.urlEncode() + '=' + params.get( key ).urlEncode();
-					}
-					
-					headers.set('content-type', 'application/x-www-form-urlencoded');
-					
-					#if !js
-					http.setPostData( data );
-					#end
-					
-				case _:
-			}
-			
+		switch (method) {
+			case GET if (params != null):
+				for (key in params.keys()) {
+					url.query.set( key, [ params.get( key ) ] );
+				}
+				
+				destroy();
+				init();
+				prepare();
+				
+			case POST:
+				if (params != null) for (key in params.keys()) {
+					data += (data != '' ? '&' : '') + key.urlEncode() + '=' + params.get( key ).urlEncode();
+				}
+				
+				headers.set('content-type', 'application/x-www-form-urlencoded');
+				
+				#if !js
+				http.setPostData( data );
+				#end
+				
+			case _:
 		}
 		
 		#if js

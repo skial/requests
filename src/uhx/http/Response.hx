@@ -52,9 +52,6 @@ class Response implements Klas {
 		http = request.http;
 		headers = request.headers;
 		#end
-		
-		untyped console.log( 'new  response' );
-		untyped console.log( xhr );
 	}
 	
 	private function get_url():Uri {

@@ -10,10 +10,12 @@ import taurine.io.Uri;
 import uhx.http.Request;
 import haxe.ds.StringMap;
 import uhx.http.impl.Status;
+import uhx.http.impl.a.Cookie;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.a.Headers;
 
 #if js
+import js.Browser;
 import js.html.XMLHttpRequest;
 #else
 import haxe.Http;
@@ -35,6 +37,7 @@ class Response implements Klas {
 	public var code(get, null):Int;
 	public var history(get, null):Array<String>;
 	public var headers(default, null):Headers;
+	public var cookies(default, null):StringMap<Cookie>;
 	
 	#if js
 	private var xhr:XMLHttpRequest;
@@ -48,6 +51,7 @@ class Response implements Klas {
 		#if js
 		xhr = request.xhr;
 		headers = request.headers;
+		cookies = Cookie.fromString( Browser.document.cookie );
 		#else
 		http = request.http;
 		headers = request.headers;

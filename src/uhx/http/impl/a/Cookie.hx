@@ -1,8 +1,8 @@
 package uhx.http.impl.a;
 
-import taurine.io.QueryString;
+import haxe.ds.StringMap.StringMap;
 import taurine.io.Uri;
-import haxe.ds.StringMap;
+import taurine.io.QueryString;
 
 using StringTools;
 
@@ -10,58 +10,7 @@ using StringTools;
  * ...
  * @author Skial Bainn
  */
-abstract Cookie(CookieData) {
-	
-	public inline function new(v:CookieData) {
-		this = v;
-	}
-	
-	@:to public inline function toString():String return this.toString();
-	
-	@:arrayAccess public inline function writeString(key:String, value:String):String {
-		switch(key.toLowerCase()) {
-			case 'name', 'key': this.name = value;
-			case 'value': this.value = value;
-			case 'path': this.path = value;
-			case 'domain', 'url': this.domain = new Uri( value );
-			case 'expires', 'date': this.expires = value;
-			case _: value;
-		}
-		return value;
-	}
-	
-	@:arrayAccess public inline function writeBool(key:String, value:Bool):Bool {
-		return switch(key.toLowerCase()) {
-			case 'secure', 'https': this.secure = value;
-			case 'http', 'httponly': this.httpOnly = value;
-			case _: value;
-		}
-	}
-	
-	@:arrayAccess public inline function read(key:String):Dynamic {
-		return switch(key.toLowerCase()) {
-			case 'name', 'key': this.name;
-			case 'value': this.value;
-			case 'path': this.path;
-			case 'domain', 'url': this.domain.toString();
-			case 'expires', 'date': this.expires;
-			case 'secure', 'https': this.secure;
-			case 'http', 'httponly': this.httpOnly;
-			case _: '';
-		}
-	}
-	
-	@:from public static inline function fromString(v:String):Cookie {
-		var values = QueryString.parse( v, ';' );
-		for (key in values.keys()) {
-			trace( key );
-		}
-		return new Cookie( new CookieData() );
-	}
-	
-}
-
-class CookieData {
+class Cookie {
 	
 	public var name:String = null;
 	public var value:String = null;
@@ -80,7 +29,7 @@ class CookieData {
 		
 		if (name != null && value != null) {
 			
-			result = '$name=$value';
+			result = '$name=${value.urlEncode()}';
 			if (expires != null) result += ' ;expires=$expires';
 			if (domain != null) result += ' ;domain=${domain.toString()}';
 			if (path != null) result += ' ;path=$path';
@@ -91,6 +40,29 @@ class CookieData {
 		}
 		
 		return result;
+	}
+	
+	public static function fromString(data:String):StringMap<Cookie> {
+		var map = QueryString.parse( data, ';' );
+		var jar = new StringMap<Cookie>();
+		
+		for (key in map.keys()) {
+			var cookie = new Cookie();
+			
+			switch( key ) {
+				case 'expires': cookie.expires = map.get( key )[0];
+				case 'domain': cookie.domain = new Uri( map.get( key )[0] );
+				case 'path': cookie.path = map.get( key )[0];
+				case 'httpOnly': cookie.httpOnly = map.get( key )[0] == 'true' ? true : false;
+				case 'secure': cookie.secure = map.get( key )[0] == 'true' ? true : false;
+				case _:
+					cookie.name = key.trim();
+					cookie.value = map.get( key )[0].urlDecode();
+					jar.set( cookie.name, cookie );
+			}
+		}
+		
+		return jar;
 	}
 	
 }

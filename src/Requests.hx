@@ -3,6 +3,7 @@ package ;
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import taurine.io.Uri;
+import uhx.http.impl.a.Cookie;
 import uhx.http.Request;
 import uhx.http.Response;
 import uhx.http.impl.e.EMethod;
@@ -40,6 +41,22 @@ class Requests {
 		es.push( macro var $id = new Request( new Uri( $url ), $method ) );
 		
 		for (r in rest) switch (r) {
+			case macro cookies = [$a { cookies } ] if (cookies.length > 0):
+				var str = '';
+				
+				for (c in cookies) switch (c.expr) {
+					case EObjectDecl( fields ):
+						for (field in fields) {
+							str += (str != '' ? '; ' : '') + field.field.replace( "@$__hx__", '' ) + '=' + field.expr.toString().substr(1, field.expr.toString().length - 2);
+						}
+						
+					case _:
+						
+				}
+				
+				es.push( macro $i { id } .cookies = uhx.http.impl.a.Cookie.fromString( $v { str } ) );
+				es.push( macro for (key in $i{id}.cookies.keys()) untyped console.log( key, $i{id}.cookies.get(key) ) );
+				
 			case macro headers = $expr:
 				switch (expr.expr) {
 					case EObjectDecl( fields ):

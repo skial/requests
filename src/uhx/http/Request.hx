@@ -36,7 +36,7 @@ class Request implements Klas {
 	
 	public var headers:Headers;
 	public var response:Response;
-	public var cookies:Array<Cookie>;
+	public var cookies:StringMap<Cookie>;
 	
 	public var url(default, null):Uri;
 	public var method(default, null):EMethod;
@@ -57,7 +57,7 @@ class Request implements Klas {
 	
 	private function init() {
 		//callback == null ? function() { } : callback;
-		cookies = new Array<Cookie>();
+		cookies = new StringMap<Cookie>();
 		#if js
 		xhr.open( method.getName(), url.toString(), true );
 		xhr.onloadend = onLoad;
@@ -81,11 +81,11 @@ class Request implements Klas {
 	#end
 	
 	private function prepare() {
-		for (cookie in cookies) {
+		for (key in cookies.keys()) {
 			#if js
-			Browser.document.cookie = cookie;
+			Browser.document.cookie = cookies.get( key ).toString();
 			#else
-			this.headers.set('Set-Cookie', cookie);
+			this.headers.set( 'Set-Cookie', cookies.get( key ).toString() );
 			#end
 		}
 	}
@@ -102,7 +102,7 @@ class Request implements Klas {
 		prepare();
 		
 		callback = cb;
-			
+		
 		switch (method) {
 			case GET if (params != null):
 				for (key in params.keys()) {

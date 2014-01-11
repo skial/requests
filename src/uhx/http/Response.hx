@@ -32,7 +32,7 @@ class Response implements Klas {
 	public var status(get, null):EStatus;
 	public var content(get, null):Bytes;
 	//public var encoding(get, null):String;
-	public var status_code(get, null):Int;
+	public var code(get, null):Int;
 	public var history(get, null):Array<String>;
 	public var headers(default, null):Headers;
 	
@@ -82,7 +82,7 @@ class Response implements Klas {
 		return '';
 	}*/
 	
-	private function get_status_code():Int {
+	private function get_code():Int {
 		#if js
 		return xhr.status;
 		#else

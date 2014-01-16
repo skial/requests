@@ -7,26 +7,22 @@ package uhx.http;
 import haxe.io.Bytes;
 import haxe.rtti.Meta;
 import taurine.io.Uri;
+import uhx.http.impl.c.PreparedResponse;
 import uhx.http.Request;
 import haxe.ds.StringMap;
 import uhx.http.impl.Status;
-import uhx.http.impl.a.Cookie;
+import uhx.http.impl.c.Cookie;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.a.Headers;
-
-#if js
-import js.Browser;
-import js.html.XMLHttpRequest;
-#else
-import haxe.Http;
-#end
 
 /**
  * ...
  * @author Skial Bainn
  */
 
-class Response implements Klas {
+class Response {
+	
+	private var requestor:PreparedResponse;
 	
 	public var request(default, null):Request;
 	public var url(get, null):Uri;
@@ -36,26 +32,14 @@ class Response implements Klas {
 	//public var encoding(get, null):String;
 	public var code(get, null):Int;
 	public var history(get, null):Array<String>;
-	public var headers(default, null):Headers;
-	public var cookies(default, null):StringMap<Cookie>;
-	
-	#if js
-	private var xhr:XMLHttpRequest;
-	#else
-	private var http:Http;
-	#end
+	public var headers(get, null):StringMap<String>;
+	public var cookies(get, null):StringMap<Cookie>;
 	
 	public function new(r:Request) {
 		request = r;
 		
-		#if js
-		xhr = request.xhr;
-		headers = request.headers;
-		cookies = Cookie.fromString( Browser.document.cookie );
-		#else
-		http = request.http;
-		headers = request.headers;
-		#end
+		requestor = new PreparedResponse( r.requestor.struct );
+		requestor.prepare();
 	}
 	
 	private function get_url():Uri {
@@ -64,18 +48,14 @@ class Response implements Klas {
 	
 	private function get_text():String {
 		#if js
-		return xhr.responseText;
+		return requestor.struct.underlying.responseText;
 		#else
-		return http.responseData;
+		return requestor.struct.underlying.responseData;
 		#end
 	}
 	
 	private function get_status():EStatus {
-		#if js
-		return Status.fromInt.get( xhr.status );
-		#else
-		return Status.fromInt.get( request.status );
-		#end
+		return Status.fromInt.get( requestor.struct.status );
 	}
 	
 	private function get_content():Bytes {
@@ -87,15 +67,19 @@ class Response implements Klas {
 	}*/
 	
 	private function get_code():Int {
-		#if js
-		return xhr.status;
-		#else
-		return request.status;
-		#end
+		return requestor.struct.status;
 	}
 	
 	private function get_history():Array<String> {
 		return [''];
+	}
+	
+	private function get_headers():StringMap<String> {
+		return requestor.headers;
+	}
+	
+	private function get_cookies():StringMap<Cookie> {
+		return requestor.cookies;
 	}
 	
 }

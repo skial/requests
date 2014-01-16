@@ -1,19 +1,18 @@
 package ;
 
-import haxe.macro.ComplexTypeTools;
-import haxe.macro.Context;
+
 import taurine.io.Uri;
-import uhx.http.impl.a.Cookie;
 import uhx.http.Request;
 import uhx.http.Response;
+import uhx.http.impl.c.Cookie;
 import uhx.http.impl.e.EMethod;
 
-#if macro
 import haxe.macro.Expr;
+import haxe.macro.Context;
+import haxe.macro.ComplexTypeTools;
 
-using haxe.macro.ExprTools;
-#end
 using StringTools;
+using haxe.macro.ExprTools;
 
 /**
  * ...
@@ -21,7 +20,7 @@ using StringTools;
  */
 class Requests {
 	
-	public static macro function get(url:ExprOf<String>, cb:ExprOf< Response->Void >, rest:Array<Expr>) {
+	public static macro function get(url:ExprOf<String>, cb:ExprOf < Response-> Void > , rest:Array<Expr>) {
 		return transformRequest( url, cb, macro GET, rest );
 	}
 	
@@ -32,7 +31,7 @@ class Requests {
 	#if macro
 	private static var counter:Int = 0;
 	
-	private static function transformRequest(url:Expr, cb:Expr, method:ExprOf<EMethod>, rest:Array<Expr>) {
+	private static function transformRequest(url:Expr, cb:Expr, method:Expr, rest:Array<Expr>) {
 		var id = 'rq' + counter++;
 		var es = [];
 		var data = null;
@@ -54,7 +53,7 @@ class Requests {
 						
 				}
 				
-				es.push( macro $i { id } .cookies = uhx.http.impl.a.Cookie.fromString( $v { str } ) );
+				es.push( macro $i { id } .cookies = uhx.http.impl.c.Cookie.fromString( $v { str } ) );
 				es.push( macro for (key in $i{id}.cookies.keys()) untyped console.log( key, $i{id}.cookies.get(key) ) );
 				
 			case macro headers = $expr:
@@ -115,7 +114,8 @@ class Requests {
 				
 		}
 		
-		es.push( macro $i{ id }.send( $a{ args } ) );
+		es.push( macro $i { id } .send( $a { args } ) );
+		//es.push( macro $i { id } );
 		
 		var block = { expr: EBlock( es ), pos: url.pos };
 		return macro @:mergeBlock $block;

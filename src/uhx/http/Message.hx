@@ -1,7 +1,9 @@
 package uhx.http;
 
+import byte.ByteData;
 import haxe.ds.StringMap;
 import de.polygonal.core.fmt.ASCII;
+import uhx.lexer.HttpMessageParser;
 
 /**
  * ...
@@ -30,8 +32,11 @@ class Message {
 		return result;
 	}
 	
-	/*public static function parse(message:String):Message {
-		
-	}*/
+	public static function parse(message:String):Message {
+		var m = new Message(message);
+		var p = new HttpMessageParser();
+		m.headers = p.toMap( p.tokenise( ByteData.ofString( message ), '' ) );
+		return m;
+	}
 	
 }

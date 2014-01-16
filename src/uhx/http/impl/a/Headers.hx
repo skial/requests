@@ -1,11 +1,16 @@
 package uhx.http.impl.a;
 
-private typedef PlatformHeaders = 
-#if js
-js.html.XMLHttpRequest;
-#else
-haxe.Http;
-#end
+import haxe.ds.StringMap;
+import uhx.http.impl.t.PlatformRequest;
+
+private class HiddenRequest {
+	public var r:PlatformRequest;
+	public var h:StringMap<String>;
+	public function new(r:PlatformRequest, h:StringMap<String>) {
+		this.r = r;
+		this.h = h;
+	}
+}
 
 /**
  * ...
@@ -44,7 +49,26 @@ haxe.Http;
 	
 }*/
 
-class Headers {
+abstract Headers(HiddenRequest) {
+	
+	public function new(v:HiddenRequest) this = v;
+	
+	public function set(key:String, value:String):Void this.h.set( key, value );
+	public function get(key:String):Null<String> return this.h.get( key );
+	public function exists(key:String):Bool return this.h.exists( key );
+	public function remove(key:String):Bool return this.h.remove( key );
+	public function keys():Iterator<String> return this.h.keys();
+	public function iterator():Iterator<String> return this.h.iterator();
+	public function toString():String return this.h.toString();
+	
+	/*@:noCompletion public function completeHeaders():PlatformRequest {
+		for (key in this.h.keys()) {
+			
+		}
+	}*/
+}
+
+/*class Headers {
 	
 	private var http:PlatformHeaders;
 	
@@ -91,4 +115,4 @@ class Headers {
 		#end
 	}
 	
-}
+}*/

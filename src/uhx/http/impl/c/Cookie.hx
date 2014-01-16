@@ -1,4 +1,4 @@
-package uhx.http.impl.a;
+package uhx.http.impl.c;
 
 import haxe.ds.StringMap.StringMap;
 import taurine.io.Uri;
@@ -43,23 +43,28 @@ class Cookie {
 	}
 	
 	public static function fromString(data:String):StringMap<Cookie> {
-		var map = QueryString.parse( data, ';' );
 		var jar = new StringMap<Cookie>();
 		
-		for (key in map.keys()) {
-			var cookie = new Cookie();
+		if (data != null && data != '' && data.trim() != '') {
 			
-			switch( key ) {
-				case 'expires': cookie.expires = map.get( key )[0];
-				case 'domain': cookie.domain = new Uri( map.get( key )[0] );
-				case 'path': cookie.path = map.get( key )[0];
-				case 'httpOnly': cookie.httpOnly = map.get( key )[0] == 'true' ? true : false;
-				case 'secure': cookie.secure = map.get( key )[0] == 'true' ? true : false;
-				case _:
-					cookie.name = key.trim();
-					cookie.value = map.get( key )[0].urlDecode();
-					jar.set( cookie.name, cookie );
+			var map = QueryString.parse( data, ';' );
+			
+			for (key in map.keys()) {
+				var cookie = new Cookie();
+				
+				switch( key ) {
+					case 'expires': cookie.expires = map.get( key )[0];
+					case 'domain': cookie.domain = new Uri( map.get( key )[0] );
+					case 'path': cookie.path = map.get( key )[0];
+					case 'httpOnly': cookie.httpOnly = map.get( key )[0] == 'true' ? true : false;
+					case 'secure': cookie.secure = map.get( key )[0] == 'true' ? true : false;
+					case _:
+						cookie.name = key.trim();
+						cookie.value = map.get( key )[0].urlDecode();
+						jar.set( cookie.name, cookie );
+				}
 			}
+			
 		}
 		
 		return jar;

@@ -27,7 +27,7 @@ class PreparedResponse {
 	
 	public function prepare() {
 		#if js
-		headers = parser.toMap( parser.tokenise( byte.ByteData.ofString( struct.underlying.getAllResponseHeaders() ), '' ) );
+		headers = parser.toMap( parser.toTokens( byte.ByteData.ofString( struct.underlying.getAllResponseHeaders() ), '' ) );
 		#else
 		headers = struct.underlying.responseHeaders;
 		#end

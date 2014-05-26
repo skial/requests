@@ -35,7 +35,7 @@ class Message {
 	public static function parse(message:String):Message {
 		var m = new Message(message);
 		var p = new HttpMessageParser();
-		m.headers = p.toMap( p.tokenise( ByteData.ofString( message ), '' ) );
+		m.headers = p.toMap( p.toTokens( ByteData.ofString( message ), '' ) );
 		return m;
 	}
 	

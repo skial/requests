@@ -25,7 +25,7 @@ class PreparedRequest {
 	
 	public function prepare() {
 		#if js
-		if (struct.underlying.readyState == 0) struct.underlying.open( method.getName(), struct.url.toString(), true );
+		if (struct.underlying.readyState == 0) struct.underlying.open( method, struct.url.toString(), true );
 		#else
 		if (struct.underlying == null) struct.underlying = new PlatformRequest( struct.url.toString() );
 		#end

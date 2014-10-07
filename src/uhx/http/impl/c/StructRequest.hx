@@ -1,6 +1,6 @@
 package uhx.http.impl.c;
 
-import haxe.ds.StringMap.StringMap;
+import haxe.ds.StringMap;
 import taurine.io.Uri;
 import uhx.http.Response;
 import uhx.http.impl.e.EMethod;
@@ -36,7 +36,7 @@ class StructRequest {
 	
 	private function initialize() {
 		#if js
-		underlying.open( method.getName(), url.toString(), true );
+		underlying.open( method, url.toString(), true );
 		underlying.onloadend = onData;
 		#else
 		

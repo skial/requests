@@ -10,6 +10,7 @@
   "url": "https://github.com/skial/requests",
   "dependencies": {
 	"klas": "",
-    "uhu": ""
+    "uhu": "",
+	"polygonal-core": ""
   }
 }

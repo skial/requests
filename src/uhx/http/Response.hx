@@ -10,7 +10,6 @@ import taurine.io.Uri;
 import uhx.http.impl.c.PreparedResponse;
 import uhx.http.Request;
 import haxe.ds.StringMap;
-import uhx.http.impl.Status;
 import uhx.http.impl.c.Cookie;
 import uhx.http.impl.e.EStatus;
 import uhx.http.impl.a.Headers;
@@ -55,7 +54,7 @@ class Response {
 	}
 	
 	private function get_status():EStatus {
-		return Status.fromInt.get( requestor.struct.status );
+		return requestor.struct.status;
 	}
 	
 	private function get_content():Bytes {

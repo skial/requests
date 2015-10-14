@@ -1,16 +1,11 @@
 package uhx.http;
 
 import haxe.PosInfos;
-import taurine.io.Uri;
+import uhx.types.Uri;
+import uhx.http.Method;
 import haxe.ds.StringMap;
 import uhx.http.Response;
-import uhx.http.impl.t.TData;
-import uhx.http.impl.c.Cookie;
-import uhx.http.impl.e.EMethod;
-import uhx.http.impl.a.Headers;
-import uhx.http.impl.c.StructRequest;
-import uhx.http.impl.t.PlatformRequest;
-import uhx.http.impl.c.PreparedRequest;
+import uhx.http.PlatformRequest;
 
 using StringTools;
 using haxe.EnumTools;
@@ -23,26 +18,18 @@ using haxe.EnumTools;
 class Request {
 	
 	private var callback:Response->Void;
-	private var requestor:PreparedRequest;
+	private var requestor:PlatformRequest;
 	
 	public var url(default, null):Uri;
-	public var method(default, null):EMethod;
+	public var method(default, null):Method;
 	public var response(default, null):Response;
 	public var headers(get, set):StringMap<String>;
-	public var cookies(get, set):StringMap<Cookie>;
 
-	public function new(url:Uri, method:EMethod) {
+	public function new(url:Uri, method:Method) {
 		this.url = url;
 		this.method = method;
-		
-		requestor = new PreparedRequest( 
-			new StructRequest( 
-				new PlatformRequest( #if !js url.toString() #end ), 
-				url,
-				method, 
-				onData
-			) 
-		);
+		trace( url.toString() );
+		requestor = new PlatformRequest( url, method, onData, function() { } );
 	}
 	
 	public function send(cb:Response->Void, ?params:StringMap<String>, ?data:String = ''):Void {
@@ -64,25 +51,19 @@ class Request {
 	}
 	
 	private function get_headers():StringMap<String> {
-		return requestor.headers;
+		return ['' => ''];
 	}
 	
 	private function set_headers(v:StringMap<String>):StringMap<String> {
-		return requestor.headers = v;
-	}
-	
-	private function get_cookies():StringMap<Cookie> {
-		return requestor.cookies;
-	}
-	
-	private function set_cookies(v:StringMap<Cookie>):StringMap<Cookie> {
-		return requestor.cookies = v;
+		return v;
 	}
 	
 	// Events
 	
 	private function onData() {
+		trace( 'creating response' );
 		response = new Response( this );
+		trace( 'calling callback' );
 		callback( response );
 	}
 	

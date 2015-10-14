@@ -1,11 +1,10 @@
 package ;
 
 
-import taurine.io.Uri;
+import uhx.types.Uri;
+import uhx.http.Method;
 import uhx.http.Request;
 import uhx.http.Response;
-import uhx.http.impl.c.Cookie;
-import uhx.http.impl.e.EMethod;
 
 import haxe.macro.Expr;
 import haxe.macro.Context;
@@ -20,7 +19,7 @@ using haxe.macro.ExprTools;
  */
 class Requests {
 	
-	public static macro function get(url:ExprOf<String>, cb:ExprOf < Response-> Void > , rest:Array<Expr>) {
+	public static macro function get(url:ExprOf<String>, cb:ExprOf< Response-> Void > , rest:Array<Expr>) {
 		return transformRequest( url, cb, macro GET, rest );
 	}
 	
@@ -37,83 +36,7 @@ class Requests {
 		var data = null;
 		var args = [cb];
 		
-		es.push( macro var $id = new Request( new Uri( $url ), $method ) );
-		
-		for (r in rest) switch (r) {
-			case macro cookies = [$a { cookies } ] if (cookies.length > 0):
-				var str = '';
-				
-				for (c in cookies) switch (c.expr) {
-					case EObjectDecl( fields ):
-						for (field in fields) {
-							str += (str != '' ? '; ' : '') + field.field.replace( "@$__hx__", '' ) + '=' + field.expr.toString().substr(1, field.expr.toString().length - 2);
-						}
-						
-					case _:
-						
-				}
-				
-				es.push( macro $i { id } .cookies = uhx.http.impl.c.Cookie.fromString( $v { str } ) );
-				es.push( macro for (key in $i{id}.cookies.keys()) untyped console.log( key, $i{id}.cookies.get(key) ) );
-				
-			case macro headers = $expr:
-				switch (expr.expr) {
-					case EObjectDecl( fields ):
-						for (field in fields) {
-							// We need to replace identifier's prefixed by the compiler. eg `@$__hx__`.
-							// See http://haxe.org/manual/struct#json-notation
-							es.push( macro $i { id } .headers.set( $v { field.field.replace( "@$__hx__", '' ) }, '' + $e { field.expr } ) );
-						}
-						
-					case _:
-						
-				}
-				
-			case macro data = $expr if (method.toString() == 'POST'):
-				
-				switch (expr) {
-					case { expr:EObjectDecl( fields ), pos:pos } if (fields.length > 0):
-						data = '${id}PostData';
-						
-						es.push( macro var $data = new haxe.ds.StringMap<String>() );
-						for (field in fields) {
-							es.push( macro $i { data } .set( $v { field.field }, $v { field.expr.toString() } ) );
-						}
-						
-						args[1] = macro $i{ data };
-						
-					case { expr:EConst(CString(v)), pos:pos } if (v != ''):
-						if (args.length < 2) args[1] = macro null;
-						args[2] = macro $v { v };
-						
-					case _:
-						try {
-							var type = Context.typeof( expr );
-							switch (type) {
-								case TAnonymous( _ ):
-									data = '${id}PostData';
-									
-									es.push( macro var $data = new haxe.ds.StringMap<String>() );
-									es.push( macro for (field in Reflect.fields( $expr )) {
-										$i { data } .set(field, Reflect.field( $expr, field ));
-									} );
-									
-									args[1] = macro $i{ data };
-									
-								case _:
-									if (args.length < 2) args[1] = macro null;
-									args[2] = expr;
-							}
-							
-						} catch (e:Dynamic) {
-							
-						}
-				}
-				
-			case _:
-				
-		}
-		
+		es.push( macro var $id = new Request( ( $url:Uri ), $method ) );
 		es.push( macro $i { id } .send( $a { args } ) );
 		//es.push( macro $i { id } );
 		

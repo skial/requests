@@ -8,6 +8,8 @@ import uhx.http.Method;
 import uhx.http.Status;
 import haxe.ds.StringMap;
 
+using StringTools;
+
 /**
  * ...
  * @author Skial Bainn
@@ -60,16 +62,33 @@ class RequestImpl {
 	}
 	
 	public inline function setParameter(key:String, value:String):Void {
-		//underlying.setParameter( key, value );
+		underlying.write( key.urlEncode() + '=' + value.urlEncode() );
 	}
 	
 	public inline function send(?params:StringMap<String>, ?data:String):Void {
+		switch (method) {
+			case POST:
+				underlying.setHeader('content-type', 'application/x-www-form-urlencoded');
+				
+				if (params != null) for (key in params.keys()) {
+					data += (data != '' ? '&' : '') + key.urlEncode() + '=' + params.get( key ).urlEncode();
+				}
+				
+				if (data != null) {
+					underlying.write( data );
+					
+				}
+				
+			case _:
+				
+		}
+		
 		underlying.end();
 	}
 	
 	// Internal
 	
-	private inline function onData(response:IncomingMessage):Void {
+	private function onData(response:IncomingMessage):Void {
 		body = '';
 		status = response.statusCode;
 		underlyingResponse = response;

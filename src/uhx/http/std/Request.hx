@@ -5,6 +5,8 @@ import uhx.http.Method;
 import uhx.http.Status;
 import haxe.ds.StringMap;
 
+using StringTools;
+
 /**
  * ...
  * @author Skial Bainn
@@ -55,6 +57,19 @@ private class RequestImpl {
 	}
 	
 	public inline function send(?params:StringMap<String>, ?data:String):Void {
+		switch (method) {
+			case POST:
+				if (params != null) for (key in params.keys()) {
+					data += (data != '' ? '&' : '') + key.urlEncode() + '=' + params.get( key ).urlEncode();
+				}
+				
+				underlying.setHeader('content-type', 'application/x-www-form-urlencoded');
+				underlying.setPostData( data );
+				
+			case _:
+				
+			
+		}
 		underlying.request( method == POST );
 	}
 	

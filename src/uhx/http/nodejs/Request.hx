@@ -26,6 +26,7 @@ class RequestImpl {
 	public var method:Method;
 	public var status:Status;
 	public var underlying:ClientRequest;
+	public var underlyingResponse:IncomingMessage;
 	public var underlyingOptions:HttpRequestOptions;
 	
 	private var data:Void->Void;
@@ -69,6 +70,7 @@ class RequestImpl {
 	
 	private inline function onData(response:IncomingMessage):Void {
 		status = response.statusCode;
+		underlyingResponse = response;
 		var result = '';
 		response.on( 'data', function(chunk:String) result += chunk );
 		response.on( 'end', data );

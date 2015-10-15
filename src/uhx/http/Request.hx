@@ -4,7 +4,6 @@ import haxe.PosInfos;
 import uhx.types.Uri;
 import uhx.http.Method;
 import haxe.ds.StringMap;
-import uhx.http.Response;
 import uhx.http.PlatformRequest;
 
 using StringTools;
@@ -14,15 +13,14 @@ using haxe.EnumTools;
  * ...
  * @author Skial Bainn
  */
-@:allow(uhx.http.Response)
 class Request {
 	
-	private var callback:Response->Void;
+	private var callback:PlatformResponse->Void;
 	private var requestor:PlatformRequest;
 	
 	public var url(default, null):Uri;
 	public var method(default, null):Method;
-	public var response(default, null):Response;
+	public var response(default, null):PlatformResponse;
 	public var headers(get, set):StringMap<String>;
 
 	public function new(url:Uri, method:Method) {
@@ -32,7 +30,7 @@ class Request {
 		requestor = new PlatformRequest( url, method, onData, function() { } );
 	}
 	
-	public function send(cb:Response->Void, ?params:StringMap<String>, ?data:String = ''):Void {
+	public function send(cb:PlatformResponse->Void, ?params:StringMap<String>, ?data:String = ''):Void {
 		prepare();
 		
 		callback = cb;
@@ -62,7 +60,7 @@ class Request {
 	
 	private function onData() {
 		trace( 'creating response' );
-		response = new Response( this );
+		response = new PlatformResponse( requestor );
 		trace( 'calling callback' );
 		callback( response );
 	}

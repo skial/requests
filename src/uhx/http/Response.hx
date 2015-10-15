@@ -62,7 +62,7 @@ class Response {
 	}
 	
 	private function get_headers():StringMap<String> {
-		return ['' => ''];
+		return ;
 	}
 
 }

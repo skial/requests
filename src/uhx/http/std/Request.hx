@@ -20,6 +20,7 @@ import haxe.ds.StringMap;
 private class RequestImpl {
 	
 	public var url:String;
+	public var body:String;
 	public var method:Method;
 	public var status:Status;
 	public var underlying:Http;
@@ -65,7 +66,7 @@ private class RequestImpl {
 	}
 	
 	private inline function onData(e:String):Void {
-		trace( e );
+		body = e;
 		data();
 	}
 	

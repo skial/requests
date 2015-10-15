@@ -23,6 +23,7 @@ import haxe.ds.StringMap;
 class RequestImpl {
 
 	public var url:Uri;
+	public var body:String;
 	public var method:Method;
 	public var status:Status;
 	public var underlying:ClientRequest;
@@ -69,10 +70,10 @@ class RequestImpl {
 	// Internal
 	
 	private inline function onData(response:IncomingMessage):Void {
+		body = '';
 		status = response.statusCode;
 		underlyingResponse = response;
-		var result = '';
-		response.on( 'data', function(chunk:String) result += chunk );
+		response.on( 'data', function(chunk:String) body += chunk );
 		response.on( 'end', data );
 	}
 	

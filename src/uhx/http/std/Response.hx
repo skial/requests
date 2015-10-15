@@ -1,5 +1,6 @@
 package uhx.http.std;
 
+import haxe.io.Bytes;
 import uhx.types.Uri;
 import uhx.http.Status;
 import haxe.ds.StringMap;
@@ -25,6 +26,8 @@ private class ResponseImpl {
 	public var request:Request;
 	public var url(get, null):Uri;
 	public var code(get, null):Int;
+	public var bytes(get, null):Bytes;
+	public var text(get, null):String;
 	public var status(get, null):Status;
 	@:isVar public var headers(get, null):StringMap<String>;
 	
@@ -44,7 +47,15 @@ private class ResponseImpl {
 		return request.status;
 	}
 	
-	private inline function get_headers():StringMap<String> {
+	private inline function get_bytes():Bytes {
+		return Bytes.ofString( request.body );
+	}
+	
+	private inline function get_text():String {
+		return request.body;
+	}
+	
+	private function get_headers():StringMap<String> {
 		if (headers == null) {
 			headers = [for (key in request.underlying.responseHeaders.keys()) {
 				key.toLowerCase() => request.underlying.responseHeaders.get( key );

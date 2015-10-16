@@ -54,7 +54,8 @@ class RequestImpl {
 	}
 	
 	public inline function destroy() {
-		
+		underlying.abort();
+		underlying = null;
 	}
 	
 	public inline function setHeader(key:String, value:String):Void {
@@ -78,6 +79,19 @@ class RequestImpl {
 					underlying.write( data );
 					
 				}
+				
+			case GET if (params != null):
+				for (key in params.keys()) if (url.queries.exists( key )) {
+					url.queries.get( key ).push( params.get( key ) );
+					
+				} else {
+					url.queries.set( key, [ params.get( key ) ] );
+					
+				}
+				
+				destroy();
+				prepare();
+				
 				
 			case _:
 				

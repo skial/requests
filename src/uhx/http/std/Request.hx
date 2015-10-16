@@ -1,6 +1,7 @@
 package uhx.http.std;
 
 import haxe.Http;
+import uhx.types.Uri;
 import uhx.http.Method;
 import uhx.http.Status;
 import haxe.ds.StringMap;
@@ -13,7 +14,7 @@ using StringTools;
  */
 @:forward abstract Request(RequestImpl) {
 
-	public inline function new(url:String, method:Method, onData:Void->Void, onError:Void->Void) {
+	public inline function new(url:Uri, method:Method, onData:Void->Void, onError:Void->Void) {
 		this = new RequestImpl( url, method, onData, onError );
 	}
 	
@@ -21,7 +22,7 @@ using StringTools;
 
 private class RequestImpl {
 	
-	public var url:String;
+	public var url:Uri;
 	public var body:String;
 	public var method:Method;
 	public var status:Status;
@@ -30,7 +31,7 @@ private class RequestImpl {
 	private var data:Void->Void;
 	private var error:Void->Void;
 	
-	public inline function new(url:String, method:Method, callback:Void->Void, onError:Void->Void) {
+	public inline function new(url:Uri, method:Method, callback:Void->Void, onError:Void->Void) {
 		this.url = url;
 		this.method = method;
 		this.data = callback;
@@ -38,7 +39,7 @@ private class RequestImpl {
 	}
 	
 	public inline function prepare() {
-		underlying = new Http( this.url );
+		underlying = new Http( this.url.toString() );
 		underlying.onStatus = this.onStatus;
 		underlying.onData = this.onData;
 		underlying.onError = this.onError;
@@ -65,6 +66,17 @@ private class RequestImpl {
 				
 				underlying.setHeader('content-type', 'application/x-www-form-urlencoded');
 				underlying.setPostData( data );
+				
+			case GET if (params != null):
+				for (key in params.keys()) if (url.queries.exists( key )) {
+					url.queries.get( key ).push( params.get( key ) );
+					
+				} else {
+					url.queries.set( key, [ params.get( key ) ] );
+					
+				}
+				
+				underlying.url = url.toString();
 				
 			case _:
 				
